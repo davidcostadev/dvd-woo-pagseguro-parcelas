@@ -13,7 +13,7 @@ if(!defined('ABSPATH')){
 <div class="wrap dvd-woo-pagseguro-parcelas">
 	<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
 
-	<?php /*<form action="options.php" method="post">
+	<form action="options.php" method="post">
 		<?php settings_fields($this->option_group); ?>
 
 		<div class="tabs">
@@ -27,11 +27,11 @@ if(!defined('ABSPATH')){
 		</div>
 
 		<?php submit_button(); ?>
-	</form> */ ?>
+	</form>
 
 	<div class="section">
 
-		<?php echo '<a class="button-secondary" href="https://github.com/davidcostadev/dvd-woo-pagseguro-parcelas/issues" target="_blank">' . __('Bugs e Sugestões', 'dvd-woo-pagseguro-parcelas') . '</a>'; ?>
+		<?php echo '<a class="button-secondary" href="https://github.com/davidcostadev/dvd-woo-pagseguro-parcelas/issues" target="_blank">' . __('Bugs and Suggestions', 'dvd-woo-pagseguro-parcelas') . '</a>'; ?>
 		<?php echo '<a class="button-secondary" href="https://github.com/davidcostadev/dvd-woo-pagseguro-parcelas" target="_blank">' . __('Github', 'dvd-woo-pagseguro-parcelas') . '</a>'; ?>
 	</div>
 

@@ -16,88 +16,76 @@ class DVDPagseguroParcelas_admin {
     public $option_name = 'dvdwoo_settings';
 
 
-   public $settings;
+    public $settings;
+    public $default;
 
     public function __construct() {
 
-
         add_action('admin_menu', array($this, 'add_menu'), 100);
-
         add_action('admin_init', array($this, 'dvdwoo_page_settings'));
 
-		/**
-		 * Keep array of settings
-		 */
-		$this->settings = get_option($this->option_name);
+        $this->default = [
+            'show_products' => 0,
+            'show_product' => 0
+        ];
+
+        $this->get_settings();
     }
 
-    public function add_menu(){
+	public function get_settings() {
+        $this->settings = get_option($this->option_name);
+
+        if(!empty($this->settings)) {
+            $this->settings = array_merge($this->default, $this->settings);
+
+        } else {
+            $this->settings = $this->default;
+        }
+	}
+
+    public function add_menu() {
 		add_submenu_page(
 			'woocommerce',
-			__('DVD Woo Pagseguro Parcelas',	'dvd-woo-pagseguro-parcelas'),
-			__('Pagseguro Parcelas', 'dvd-woo-pagseguro-parcelas'),
+			__('DVD Woo Pagseguro Installment',	'dvd-woo-pagseguro-parcelas'),
+			__('Pagseguro Installment', 'dvd-woo-pagseguro-parcelas'),
 			apply_filters('dvdwoo_page_view_permission', 'manage_options'),
 			$this->page,
 			array($this, 'dvdwoo_page_callback')
 		);
 	}
 
-    public function dvdwoo_page_callback(){
+    public function dvdwoo_page_callback() {
 		include_once 'html-settings-page.php';
 	}
 
     public function dvdwoo_page_settings() {
 
 
-        // add_settings_field(
-		// 	'show_sem_juros',
-		// 	__('Sem Juros', 'dvd-woo-pagseguro-parcelas'),
-		// 	array($this, 'dvdwoo_select_callback'),
-		// 	$this->page,
-		// 	'section_general-base',
-		// 	array(
-		// 		'id'		=>	'show_sem_juros',
-		// 		'options'	=>	array(
-		// 					0	=>	'Ocultar',
-		// 					1	=>	'Mostrar',
-		// 				),
-		// 		'desc'		=>	__('Se quer Mostrar ou Ocultar o texto Sem Juros', 'dvd-woo-pagseguro-parcelas'),
-		// 		'default'	=> ''
-		// 	)
-		// );
+        add_settings_field(
+			'show_products',
+			__('Mostrar na Listagem', 'dvd-woo-pagseguro-parcelas'),
+			array($this, 'dvdwoo_checkbox_callback'),
+			$this->page,
+			'section_general-base',
+			array(
+				'id'		=>	'show_products',
+				'desc'		=>	__('Para mostrar na listagem dos produtos', 'dvd-woo-pagseguro-parcelas'),
+				'default'	=> ''
+			)
+		);
+        add_settings_field(
+			'show_product',
+			__('Mostrar no Produto', 'dvd-woo-pagseguro-parcelas'),
+			array($this, 'dvdwoo_checkbox_callback'),
+			$this->page,
+			'section_general-base',
+			array(
+				'id'		=>	'show_product',
+				'desc'		=>	__('Para mostrar na listagem dos produtos', 'dvd-woo-pagseguro-parcelas'),
+				'default'	=> ''
+			)
+        );
 
-		// add_settings_field(
-		// 	'desconto',
-		// 	__('Valor do Desconto','dvd-woo-pagseguro-parcelas'),
-		// 	array($this, 'dvdwoo_number_callback'),
-		// 	$this->page,
-		// 	'section_general-base',
-		// 	array(
-		// 		'id'		=>	'desconto',
-		// 		'label_for'	=>	'desconto',
-		// 		'default'	=>	2,
-		// 		'class'		=> '',
-		// 		'desc'		=>	__('Se for 0 o desconto não é ativado', 'dvd-woo-pagseguro-parcelas')
-		// 	)
-		// );
-        //
-        // add_settings_field(
-		// 	'parcelamento_fator',
-		// 	__('Fator do Parcelamento', 'dvd-woo-pagseguro-parcelas'),
-		// 	array($this, 'dvdwoo_select_callback'),
-		// 	$this->page,
-		// 	'section_general-base',
-		// 	array(
-		// 		'id'		=>	'parcelamento_fator',
-		// 		'options'	=>	array(
-		// 					0	=>	'Marcado Livre',
-		// 					1	=>	'Mercado Pago',
-		// 					2	=>	'Sem Juros'
-		// 				),
-		// 		'desc'		=>	__('Tipo do fator de para calcular parcelas', 'dvd-woo-pagseguro-parcelas'),
-		// 		'default'	=> ''
-		// 	)
-		// );
 
         register_setting(
 			$this->option_group,
@@ -106,7 +94,7 @@ class DVDPagseguroParcelas_admin {
 		);
     }
 
-    public function dvdwoo_checkbox_callback($args){
+    public function dvdwoo_checkbox_callback($args) {
 		extract($args);
 
 		$value = isset($this->settings[$id]) ? $this->settings[$id] : 0;
@@ -115,7 +103,7 @@ class DVDPagseguroParcelas_admin {
 		echo isset($desc) ? "<span class='description'> $desc</span>" : '';
 	}
 
-	public function dvdwoo_text_callback($args){
+	public function dvdwoo_text_callback($args) {
 		extract($args);
 
 		$value = isset($this->settings[$id]) ? $this->settings[$id] : $default;
@@ -124,7 +112,7 @@ class DVDPagseguroParcelas_admin {
 		echo isset($desc) ? "<br /><span class='description'>$desc</span>" : '';
 	}
 
-	public function dvdwoo_number_callback($args){
+	public function dvdwoo_number_callback($args) {
 		extract($args);
 
 		$value = isset($this->settings[$id]) ? $this->settings[$id] : $default;
@@ -133,28 +121,27 @@ class DVDPagseguroParcelas_admin {
 		echo isset($desc) ? "<br /><span class='description'>$desc</span>" : '';
 	}
 
-	public function dvdwoo_select_callback($args){
+	public function dvdwoo_select_callback($args) {
 		extract($args);
 
 		$value = isset($this->settings[$id]) ? $this->settings[$id] : $default;
 
 		echo "<select name='".$this->option_name."[$id]'>";
-		foreach($options as $k => $option){
+		foreach($options as $k => $option) {
 			echo "<option value='$k'".selected($k, $value, false).">".$option."</option>";
 		}
 		echo "</select>";
 		echo isset($desc) ? "<br /><span class='description'>$desc</span>" : '';
 	}
 
-	public function dvdwoo_options_sanitize($input){
-		foreach($input as $k => $v){
-			if($k == 'installment_qty'){
-				// if($v < 2 || empty($v)){
+	public function dvdwoo_options_sanitize($input) {
+		foreach($input as $k => $v) {
+			if($k == 'installment_qty') {
+				// if($v < 2 || empty($v)) {
 				// 	$v = 2;
 				// }
-			}
-			else if($k == 'installment_minimum_value'){
-				// if($v < 0 || empty($v)){
+			} else if($k == 'installment_minimum_value') {
+				// if($v < 0 || empty($v)) {
 				// 	$v = 0;
 				// }
 			}

@@ -25,51 +25,31 @@ final class CalcParcelamento
 	public $fator = 'pagseguro_livre';
 	public $valor_minimo = 10;
 
-    public $mercaro_livre = [
-        '2' => 5.24,
-        '3' => 6.99,
-        '4' => 8.74,
-        '5' => 10.28,
-        '6' => 11.99,
-        '10' => 14.85,
-        '12' => 15.99,
-        // '15' => 18.49,
-        // '18' => 21.49,
-        // '24' => 27.99
+    public $pagseguro = [
+        '1' => 1,
+        '2' => 1,
+        '3' => 1,
+        '4' => 1,
+        '5' => 1,
+        '6' => 1,
+        '7' => 1.0299,
+        '8' => 1.0451,
+        '9' => 1.0604,
+        '10' => 1.0759,
+        '11' => 1.0915,
+        '12' => 1.1072,
+        // '13' => 1.1231,
+        // '14' => 1.1392,
+        // '15' => 1.1554,
+        // '16' => 1.1717,
+        // '17' => 1.1882,
+        // '18' => 1.2048,
+
     ];
 
-    public $mercaro_ = [
-        '2' => 2.39,
-        '3' => 4.78,
-        '4' => 7.17,
-        '5' => 9.15,
-        '6' => 10.72,
-        '10' => 17.17,
-        '12' => 20.48,
-        // '15' => 25.56,
-        // '18' => 30.77,
-        // '24' => 32.99
-    ];
+    public $parcela_semjuros = 6;
 
-    public $sem_juros = [
-        '1' => 0,
-        '2' => 0,
-        '3' => 0,
-        '4' => 0,
-        '5' => 0,
-        '6' => 0,
-        '7' => 12.308,
-        '8' => 13.920,
-        '9' => 15.542,
-        '10' => 17.170,
-        '11' => 18.822,
-        '12' => 20.480,
-        // '15' => 25.56,
-        // '18' => 30.77,
-        // '24' => 32.99
-    ];
-
-    protected $type = 'sem_juros';
+    protected $type = 'pagseguro';
 
     protected static $_instance  = null;
 
@@ -101,8 +81,8 @@ final class CalcParcelamento
 
 		$last = '';
         foreach ($fators as $divisao => $fator) {
-            $fator_refinado  = ($fator * 0.01) + 1;
-            $total_parcelado = $valor * $fator_refinado;
+            // $fator_refinado  = ($fator * 0.01) + 1;
+            $total_parcelado = $valor * $fator;
             $parcela         = $total_parcelado / $divisao;
 
 			if($parcela < $this->valor_minimo) break;
@@ -116,40 +96,86 @@ final class CalcParcelamento
 		return $last;
     }
 
-	public function parcela_table($valor) {
-		if($valor == 0) {
-			return '';
-		}
+    public function getMetade($valor) {
+        $parcelas = [];
 
-		$fators = $this->getFator();
+        $fators = $this->getFator();
 
-		$html = '';
         foreach ($fators as $divisao => $fator) {
             $fator_refinado  = ($fator * 0.01) + 1;
             $total_parcelado = $valor * $fator_refinado;
             $parcela         = $total_parcelado / $divisao;
 
-			if($parcela < $this->valor_minimo) break;
-			$semJurusText = $fator == 0 ? ' SEM JUROS' : '';
-            $html .=  '<div class="col-xs-12 col-sm-6"><strong>'. $divisao .'x de '.$this->floatToReal($parcela).'</strong>'.$semJurusText.'</div>';
+            if($parcela < $this->valor_minimo) break;
+
+            $parcelas[] = $parcela;
         }
 
-		$img = '<img src="'.plugins_url('dvd-woo-pagseguro-parcela/img/bandeiras-parcelamento.gif').'">';
+
+        // echo '<pre>';
+        // echo  ceil(count($parcelas) / 2);
+        // print_r($parcelas);
+        // echo '</pre>';
+        return ceil(count($parcelas) / 2);
+    }
+
+	public function parcela_table($valor) {
+
+		if($valor == 0) {
+			return '';
+		}
 
 
-		return '<div id="table-parcelado"><div class="title">'.$img.' Parcelamento</div><div class="row">'.$html.'</div></div>';
+        $parc = 147.13;
+        $total = 1029.90;
+
+        $calc = ($total - 1000) / 1000;
+
+        // echo $calc . '</br>';
+
+        $this->getMetade($valor);
+
+		$fators = $this->getFator();
+
+        $html = '';
+
+        $metade = $this->getMetade($valor);
+
+
+        $metade_one = [];
+        $metade_two = [];
+
+        // echo $metade . '<br>';
+
+        foreach ($fators as $divisao => $fator) {
+            $fator_refinado  = $fator;
+            $parcela = $valor * $fator_refinado / $divisao;
+            // $parcela         = $total_parcelado / $divisao;
+            //  echo $divisao .'-'.$fator_refinado.'-'.$parcela . '</br>';
+
+			if($parcela * $divisao < $this->valor_minimo) break;
+            $semJurusText = $fator === 1 ? ' <strong>SEM JUROS</strong>' : '';
+
+            if($divisao  <= $metade) {
+                $metade_one[] =  '<div class="parcela"><strong>'. $divisao .'x de '.$this->floatToReal($parcela).'</strong>'.$semJurusText.'</div>';
+            } else {
+                $metade_two[] =  '<div class="parcela"><strong>'. $divisao .'x de '.$this->floatToReal($parcela).'</strong>'.$semJurusText.'</div>';
+            }
+        }
+
+        $html .= '<div class="col-xs-6">'. implode('', $metade_one) .'</div>';
+        $html .= '<div class="col-xs-6">'. implode('', $metade_two) .'</div>';
+
+		$img = '<img src="'.plugins_url('dvd-woo-pagseguro-parcelas/img/bandeiras-parcelamento.gif').'" class="img-responsive">';
+
+
+		return '<div class="panel panel-default "id="table-parcelado"><div class="panel-heading" style="display: flex;justify-content: space-between">Pagseguro<div class="pull-right">'.$img.'</div></div><div class="panel-body"><div class="row">'.$html.'</div></div></div>';
 	}
 
 	private function getFator() {
 		switch ($this->type) {
-            case 'mercaro_livre':
-                $fators = $this->mercaro_livre;
-                break;
-            case 'sem_juros':
-                $fators = $this->sem_juros;
-                break;
-            case 'mercaro_':
-                $fators = $this->mercaro_;
+            case 'pagseguro':
+                $fators = $this->pagseguro;
                 break;
         }
 

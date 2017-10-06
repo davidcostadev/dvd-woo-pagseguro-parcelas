@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: DVD Woo MercadoPago Parcelas
+ * Plugin Name: DVD Woo Pagseguro Installment
  * Plugin URI: https://github.com/davidcostadev/dvd-woo-pagseguro-parcelas
- * Description: Parcelamento dos produtos de acordo com os fatores do pagseguro.
+ * Description: Payment of the products according to the factors of the pagseguro.
  * Author: David Costa
  * Author URI: http://davidcosta.com.br
  * Version: 1.0.0
@@ -28,7 +28,8 @@ final class DVDPagseguroParcelas
 {
     protected static $_instance = null;
 
-	public $option_name = 'dvdwoo_settings';
+    public $option_name = 'dvdwoo_settings';
+    public $default;
 
     public static function instance() {
         if ( is_null( self::$_instance ) ) {
@@ -39,44 +40,51 @@ final class DVDPagseguroParcelas
 
     public function __construct() {
 
+        $this->default = [
+            'show_products' => 0,
+            'show_product' => 0
+        ];
 
-        // CP_ApiConfig::init();
+        $this->get_settings();
+
         $this->incluir();
 
-		$this->get_settings();
 
 		require DVD_PATH . 'admin.php';
 		require DVD_PATH . 'calc-parcelamento.php';
-
     }
 
 	public function incluir() {
 
-			// add_action('woocommerce_after_shop_loop_item', [$this, 'price_loop_item'], 20);
-			add_action('woocommerce_get_price_html', [$this, 'dvd_wrap_price_html'], 50);  //<---
-			add_action('woocommerce_single_product_summary', [$this, 'add_table_parcelamento'], 40);
-        // if ( !function_exists('media_handle_upload') ) {
-        //   require_once(ABSPATH . "wp-admin" . '/includes/image.php');
-        //   require_once(ABSPATH . "wp-admin" . '/includes/file.php');
-        //   require_once(ABSPATH . "wp-admin" . '/includes/media.php');
-        // }
+        if($this->settings['show_products']) {
+            add_action('woocommerce_get_price_html', [$this, 'dvd_wrap_price_html'], 50);
+        }
+
+        if($this->settings['show_product']) {
+            add_action('woocommerce_single_product_summary', [$this, 'add_table_parcelamento'], 40);
+        }
 
 	}
 
 	public function price_loop_item() {
-			echo '<div class="teste" style="color: blue; font-size: 18px; ">teste</div>';
+        echo '<div class="teste" style="color: blue; font-size: 18px; ">teste</div>';
 	}
 
 	public function dvd_wrap_price_html( $html ) {
-
 		$html = $this->filtrar($html);
-
 
 		return apply_filters( 'dvd_price_html', $html );
 	}
 
 	public function get_settings() {
-		$this->settings = get_option($this->option_name);
+        $this->settings = get_option($this->option_name);
+
+        if(!empty($this->settings)) {
+            $this->settings = array_merge($this->default, $this->settings);
+
+        } else {
+            $this->settings = $this->default;
+        }
 	}
 
 	private function filtrar($html) {
@@ -128,15 +136,18 @@ final class DVDPagseguroParcelas
 		return $inicio .
 			'<span class="valor">'.$priceText.'</span> '.
 			// $this->floatToReal($valor).
-				'<span class="parcelado">'.$textParcelado.'</span>'.
-					'<span class="desconto">ou '.$this->floatToReal($desconto).' Boleto (com 7% DESC)</span>'.
+            '<span class="parcelado">'.$textParcelado.'</span>'.
 
 			$fim
 		;
 	}
 
 	private function floatToReal($float) {
-		return 'R$ '. number_format($float, 2, ',', '.');
+        if(is_numeric($float)) {
+		    return 'R$ '. number_format($float, 2, ',', '.');
+        } else {
+            return '';
+        }
 	}
 
 	public function add_table_parcelamento() {
