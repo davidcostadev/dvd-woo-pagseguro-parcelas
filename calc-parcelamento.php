@@ -3,14 +3,14 @@
 /**
  *
  * @since 		1.0.0
- * @author 		David Costa <contato@davidcosta.com.br>
+ * @author 		David Costa <davidcostadev@gmail.com>
  * @version 	1.0.0
  */
 
 
 
 if(!defined('ABSPATH')){
-	exit;
+    exit;
 }
 
 if ( ! class_exists( 'CalcParcelamento' ) ) :
@@ -22,8 +22,8 @@ final class CalcParcelamento
      * 1 - Marcedo password_get_info
      * 2 - Sem Juros
      */
-	public $fator = 'pagseguro_livre';
-	public $valor_minimo = 10;
+    public $fator = 'pagseguro_livre';
+    public $valor_minimo = 10;
 
     public $pagseguro = [
         '1' => 1,
@@ -53,7 +53,7 @@ final class CalcParcelamento
 
     protected static $_instance  = null;
 
-	// $Calc = self::instance();
+    // $Calc = self::instance();
 
     public static function instance() {
         if ( is_null( self::$_instance ) ) {
@@ -64,36 +64,36 @@ final class CalcParcelamento
 
     public function setType($type) {
         $this->type = $type;
-		return $this;
+        return $this;
     }
 
     public function setMinimo($minimo) {
         $this->valor_minimo = $minimo;
-		return $this;
+        return $this;
     }
 
     public function calc($valor) {
-		if($valor == 0) {
-			return '';
-		}
+        if($valor == 0) {
+            return '';
+        }
 
-		$fators = $this->getFator();
+        $fators = $this->getFator();
 
-		$last = '';
+        $last = '';
         foreach ($fators as $divisao => $fator) {
             // $fator_refinado  = ($fator * 0.01) + 1;
             $total_parcelado = $valor * $fator;
             $parcela         = $total_parcelado / $divisao;
 
-			if($parcela < $this->valor_minimo) break;
-			if($divisao > 6) break;
+            if($parcela < $this->valor_minimo) break;
+            if($divisao > 6) break;
 
-				$semJurusText = $fator == 0 ? ' SEM JUROS' : '';
+            $semJurusText = $fator == 0 ? ' SEM JUROS' : '';
 
             $last =  'em <strong>'. $divisao .'x de '.$this->floatToReal($parcela).'</strong>'.$semJurusText;
         }
 
-		return $last;
+        return $last;
     }
 
     public function getMetade($valor) {
@@ -119,11 +119,11 @@ final class CalcParcelamento
         return ceil(count($parcelas) / 2);
     }
 
-	public function parcela_table($valor) {
+    public function parcela_table($valor) {
 
-		if($valor == 0) {
-			return '';
-		}
+        if($valor == 0) {
+            return '';
+        }
 
 
         $parc = 147.13;
@@ -135,7 +135,7 @@ final class CalcParcelamento
 
         $this->getMetade($valor);
 
-		$fators = $this->getFator();
+        $fators = $this->getFator();
 
         $html = '';
 
@@ -153,7 +153,7 @@ final class CalcParcelamento
             // $parcela         = $total_parcelado / $divisao;
             //  echo $divisao .'-'.$fator_refinado.'-'.$parcela . '</br>';
 
-			if($parcela * $divisao < $this->valor_minimo) break;
+            if($parcela * $divisao < $this->valor_minimo) break;
             $semJurusText = $fator === 1 ? ' <strong>SEM JUROS</strong>' : '';
 
             if($divisao  <= $metade) {
@@ -166,27 +166,27 @@ final class CalcParcelamento
         $html .= '<div class="col-xs-6">'. implode('', $metade_one) .'</div>';
         $html .= '<div class="col-xs-6">'. implode('', $metade_two) .'</div>';
 
-		$img = '<img src="'.plugins_url('dvd-woo-pagseguro-parcelas/img/bandeiras-parcelamento.gif').'" class="img-responsive">';
+        $img = '<img src="'.plugins_url('dvd-woo-pagseguro-parcelas/img/bandeiras-parcelamento.gif').'" class="img-responsive">';
 
 
-		return '<div class="panel panel-default "id="table-parcelado"><div class="panel-heading" style="display: flex;justify-content: space-between">Pagseguro<div class="pull-right">'.$img.'</div></div><div class="panel-body"><div class="row">'.$html.'</div></div></div>';
-	}
+        return '<div class="panel panel-default "id="table-parcelado"><div class="panel-heading" style="display: flex;justify-content: space-between">Pagseguro<div class="pull-right">'.$img.'</div></div><div class="panel-body"><div class="row">'.$html.'</div></div></div>';
+    }
 
-	private function getFator() {
-		switch ($this->type) {
+    private function getFator() {
+        switch ($this->type) {
             case 'pagseguro':
                 $fators = $this->pagseguro;
                 break;
         }
 
-		return $fators;
-	}
+        return $fators;
+    }
 
 
 
-	private function floatToReal($float) {
-		return 'R$ '. number_format($float, 2, ',', '.');
-	}
+    private function floatToReal($float) {
+        return 'R$ '. number_format($float, 2, ',', '.');
+    }
 
 }
 

@@ -1,10 +1,9 @@
-# dvd-woo-pagseguro-parcelas
-Plugin do wordpress para o woocommerce para mostrar parcelamento do pagseguro
+# dvd-woo-pagseguro-parcelas - Tabela de Parcelamento do Pagseguro
+Plugin do wordpress para o woocommerce para mostrar uma tabela parcelamento do pagseguro
 
 ## Funcinalidades
 
 1. Mostrar Parcelamento na página do produto
-
 
 
 link plugin
