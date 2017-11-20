@@ -7,15 +7,11 @@ Plugin do wordpress para o woocommerce para mostrar uma tabela parcelamento do p
 
 
 link plugin
-![https://wordpress.org/plugins/dvd-woo-pagseguro-parcelas/]https://wordpress.org/plugins/dvd-woo-pagseguro-parcelas/)
+![https://wordpress.org/plugins/dvd-woo-pagseguro-parcelas/]https://wordpress.org/plugins/dvd-woo-pagseguro-parcelas/) (ainda não foi publicado)
 
 
 
 ## Demostração
-**Lista**
-
-
-**Tabela na Pagina do Produto**
 
 **Pagina do Produto**
-
+![demostração](https://github.com/davidcostadev/dvd-woo-pagseguro-parcelas/blob/master/img/parcelamento.png)
